@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="0.0.1"
+echo "Running sc-install-basic script ..."
 
 # shellcheck disable=SC2034
 {
@@ -25,10 +25,6 @@ print_ok() {
   echo "[OK]"
 }
 
-version() {
-  echo "$VERSION"
-}
-
 usage() {
   cat << EOF
 
@@ -38,7 +34,6 @@ usage() {
     --skip-dotfiles  no install custom dotfiles
     --skip-dotvim    no install custom vim config
     --skip-tools     no install system default tools
-    -v               print script version
     -h               print this help
 
 EOF
@@ -56,10 +51,6 @@ parse_options() {
       --skip-tools)
         SKIP_TOOLS=true
         ;;
-      -v)
-        version
-        exit 1
-        ;;
       -h)
         usage
         exit 1
@@ -69,8 +60,6 @@ parse_options() {
 }
 
 parse_options "$@"
-
-echo "Running server-config install script ..."
 
 print_status "Updating system"
   run_command "apt update"
