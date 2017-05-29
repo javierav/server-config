@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+# shellcheck disable=SC2034
+{
+  OFF='\033[0m'
+  RED='\033[0;31m'
+  GREEN='\033[0;32m'
+  YELLOW='\033[0;33m'
+  BLUE='\033[0;34m'
+}
+
+run_command() {
+  _run_command "$1"
+
+  if [ "$exit_code" -ne 0 ]; then
+    timestamp=$(date +%Y-%m-%d\ %H:%M)
+    echo -e "\n$timestamp - Command exit code $exit_code\nExit!\n" >> /var/log/ubuntu-recipes-debug.log
+    print_fail
+  fi
+}
+
+run_check() {
+  _run_command "$1"
+}
+
+_run_command() {
+  local timestamp command
+
+  timestamp=$(date +%Y-%m-%d\ %H:%M)
+  command="$1 2>&1 | tee -a /var/log/ubuntu-recipes-debug.log"
+
+  echo -e "\n\n$timestamp - Running command $1\n" >> /var/log/ubuntu-recipes-debug.log
+
+  result=$(bash -c "$command; exit \${PIPESTATUS[0]}")
+  exit_code=$?
+}
+
+print_status() {
+  echo -n -e "  * $1 "
+}
+
+print_ok() {
+  echo -e "[${GREEN}OK$OFF]"
+}
+
+print_fail() {
+  echo -e "[${RED}FAIL$OFF]"
+  exit 1
+}
+
+print_skip() {
+  echo -e "[${YELLOW}SKIP$OFF]"
+}
+
+trap print_fail ERR

@@ -1,29 +1,14 @@
 #!/usr/bin/env bash
 
-echo "Running sc-install-basic script ..."
+set -o pipefail
 
-# shellcheck disable=SC2034
-{
-  OFF='\033[0m'
-  RED='\033[0;31m'
-  GREEN='\033[0;32m'
-  YELLOW='\033[0;33m'
-  BLUE='\033[0;34m'
-}
+ROOT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-run_command() {
-  timestamp=$(date +%Y-%m-%d\ %H:%M)
-  echo -e "\n\n$timestamp - Running command $1\n" >> /root/install-debug.log
-  eval "$1 >> /root/install-debug.log 2> /dev/null"
-}
+# include common functions
+# shellcheck disable=SC1090
+source "$ROOT_PATH/../lib/functions"
 
-print_status() {
-  echo -n -e "  * $1 "
-}
-
-print_ok() {
-  echo "[OK]"
-}
+echo "Running basic-install script ..."
 
 usage() {
   cat << EOF
@@ -95,6 +80,6 @@ fi
 
 if [ -z "$SKIP_TOOLS" ]; then
   print_status "Installing basic tools"
-    run_command "apt install -y vim mc iptraf-ng curl wget tree"
+    run_command "apt install -y vim mc iptraf-ng curl wget tree direnv"
   print_ok
 fi
