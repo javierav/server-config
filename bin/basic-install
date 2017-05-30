@@ -6,7 +6,10 @@ ROOT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # include common functions
 # shellcheck disable=SC1090
-source "$ROOT_PATH/../lib/functions"
+{
+  source "$ROOT_PATH/../lib/functions"
+  source "$ROOT_PATH/../lib/system/upgrade"
+}
 
 echo "Running basic-install script ..."
 
@@ -46,10 +49,7 @@ parse_options() {
 
 parse_options "$@"
 
-print_status "Updating system"
-  run_command "apt update"
-  run_command "apt upgrade -y"
-print_ok
+system_upgrade
 
 if [ -z "$SKIP_DOTFILES" ]; then
   print_status "Installing github.com/javierav/dotfiles"

@@ -31,7 +31,7 @@ _run_command() {
 
   echo -e "\n\n$timestamp - Running command $1\n" >> /var/log/ubuntu-recipes-debug.log
 
-  result=$(bash -c "$command; exit \${PIPESTATUS[0]}")
+  response=$(bash -c "$command; exit \${PIPESTATUS[0]}")
   exit_code=$?
 }
 
@@ -53,3 +53,29 @@ print_skip() {
 }
 
 trap print_fail ERR
+
+start_service() {
+  print_status "Starting ${1}.service"
+
+  run_check "systemctl is-active ${1}.service"
+
+  if [ "$exit_code" -ne 0 ]; then
+    run_command "systemctl start ${1}.service"
+    print_ok
+  else
+    print_skip
+  fi
+}
+
+enable_service() {
+  print_status "Enabling ${1}.service"
+
+  run_check "systemctl is-enabled ${1}.service"
+
+  if [ "$exit_code" -ne 0 ]; then
+    run_command "systemctl enable ${1}.service"
+    print_ok
+  else
+    print_skip
+  fi
+}

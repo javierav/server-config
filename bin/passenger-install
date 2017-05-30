@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+set -o pipefail
+
+ROOT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# include common functions
+# shellcheck disable=SC1090
+source "$ROOT_PATH/../lib/functions"
+
+echo "Running passenger-install script ..."
+
+usage() {
+  cat << EOF
+
+  Usage: $0 [options]
+
+  OPTIONS:
+    -h   print this help
+
+EOF
+}
+
+parse_options() {
+  for option in "$@"; do
+    case ${option} in
+      -h)
+        usage
+        exit 1
+        ;;
+    esac
+  done
+}
+
+parse_options "$@"
+
+check_requirements() {
+  print_status "Checking requirements"
+  run_check "nginx -v"
+
+  # shellcheck disable=SC2154
+  if [ "$exit_code" -ne 0 ]; then
+    print_fail
+  else
+    print_ok
+  fi
+}
+
+install_passenger() {
+  print_status "Installing Phusion Passenger"
+  run_check "passenger -v"
+
+  # shellcheck disable=SC2154
+  if [ "$exit_code" -ne 0 ]; then
+    run_command "apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 561F9B9CAC40B2F7"
+    run_command "apt-get install -y apt-transport-https ca-certificates"
+    run_command "echo 'deb https://oss-binaries.phusionpassenger.com/apt/passenger xenial main' > /etc/apt/sources.list.d/passenger.list"
+    run_command "apt-get update"
+    run_command "apt-get install -y nginx-extras passenger"
+    print_ok
+  else
+    print_skip
+  fi
+}
+
+# check_requirements
+install_passenger

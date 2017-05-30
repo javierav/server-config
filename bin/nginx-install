@@ -8,7 +8,7 @@ ROOT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC1090
 source "$ROOT_PATH/../lib/functions"
 
-echo "Running mongodb-install script ..."
+echo "Running nginx-install script ..."
 
 usage() {
   cat << EOF
@@ -42,16 +42,16 @@ parse_options() {
 
 parse_options "$@"
 
-install_mongodb() {
-  print_status "Installing MongoDB"
-  run_check "mongod --version"
+install_nginx() {
+  print_status "Installing Nginx stable"
+  run_check "nginx -v"
 
   # shellcheck disable=SC2154
   if [ "$exit_code" -ne 0 ]; then
-    run_command "apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927"
-    run_command "echo \"deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse\" | tee /etc/apt/sources.list.d/mongodb-org-3.2.list"
+    run_command "curl -s http://nginx.org/keys/nginx_signing.key | apt-key add -"
+    run_command "echo -e \"deb http://nginx.org/packages/ubuntu/ xenial nginx\ndeb-src http://nginx.org/packages/ubuntu/ xenial nginx\" | tee /etc/apt/sources.list.d/nginx-stable.list"
     run_command "apt-get update"
-    run_command "apt-get install -y mongodb-org"
+    run_command "apt-get install -y nginx"
     print_ok
   else
     print_skip
@@ -59,14 +59,14 @@ install_mongodb() {
 }
 
 main() {
-    install_mongodb
+    install_nginx
 
     if [ -z "$SKIP_START" ]; then
-      start_service "mongod"
+      start_service "nginx"
     fi
 
     if [ -z "$SKIP_ENABLE" ]; then
-      enable_service "mongod"
+      enable_service "nginx"
     fi
 }
 

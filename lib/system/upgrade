@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+system_upgrade() {
+  print_status "Upgrading system"
+    run_command "apt update"
+    run_command "apt upgrade -y"
+  print_ok
+}

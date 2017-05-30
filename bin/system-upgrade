@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+set -o pipefail
+
+ROOT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# include common functions
+# shellcheck disable=SC1090
+{
+  source "$ROOT_PATH/../lib/functions"
+  source "$ROOT_PATH/../lib/system/upgrade"
+}
+
+echo "Running system-upgrade script ..."
+
+usage() {
+  cat << EOF
+
+  Usage: $0 [options]
+
+  OPTIONS:
+    -h   print this help
+
+EOF
+}
+
+parse_options() {
+  for option in "$@"; do
+    case ${option} in
+      -h)
+        usage
+        exit 1
+        ;;
+    esac
+  done
+}
+
+parse_options "$@"
+
+system_upgrade
